@@ -87,12 +87,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (void)postMessage:(NSString *)message
 {
   NSDictionary *eventInitDict = @{
-    @"data": message,
-  };
+                                  @"data": message,
+                                  };
   NSString *source = [NSString
-    stringWithFormat:@"document.dispatchEvent(new MessageEvent('message', %@));",
-    RCTJSONStringify(eventInitDict, NULL)
-  ];
+                      stringWithFormat:@"document.dispatchEvent(new MessageEvent('message', %@));",
+                      RCTJSONStringify(eventInitDict, NULL)
+                      ];
   [_webView stringByEvaluatingJavaScriptFromString:source];
 }
 
@@ -105,7 +105,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 {
   if (![_source isEqualToDictionary:source]) {
     _source = [source copy];
-
+    
     // Check for a static html source first
     NSString *html = [RCTConvert NSString:source[@"html"]];
     if (html) {
@@ -116,7 +116,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
       [_webView loadHTMLString:html baseURL:baseURL];
       return;
     }
-
+    
     NSURLRequest *request = [RCTConvert NSURLRequest:source];
     // Because of the way React works, as pages redirect, we actually end up
     // passing the redirect urls back here, so we ignore them if trying to load
@@ -176,13 +176,13 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (NSMutableDictionary<NSString *, id> *)baseEvent
 {
   NSMutableDictionary<NSString *, id> *event = [[NSMutableDictionary alloc] initWithDictionary:@{
-    @"url": _webView.request.URL.absoluteString ?: @"",
-    @"loading" : @(_webView.loading),
-    @"title": [_webView stringByEvaluatingJavaScriptFromString:@"document.title"],
-    @"canGoBack": @(_webView.canGoBack),
-    @"canGoForward" : @(_webView.canGoForward),
-  }];
-
+                                                                                                 @"url": _webView.request.URL.absoluteString ?: @"",
+                                                                                                 @"loading" : @(_webView.loading),
+                                                                                                 @"title": [_webView stringByEvaluatingJavaScriptFromString:@"document.title"],
+                                                                                                 @"canGoBack": @(_webView.canGoBack),
+                                                                                                 @"canGoForward" : @(_webView.canGoForward),
+                                                                                                 }];
+  
   return event;
 }
 
@@ -199,59 +199,59 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
  navigationType:(UIWebViewNavigationType)navigationType
 {
   BOOL isJSNavigation = [request.URL.scheme isEqualToString:RCTJSNavigationScheme];
-
+  
   static NSDictionary<NSNumber *, NSString *> *navigationTypes;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     navigationTypes = @{
-      @(UIWebViewNavigationTypeLinkClicked): @"click",
-      @(UIWebViewNavigationTypeFormSubmitted): @"formsubmit",
-      @(UIWebViewNavigationTypeBackForward): @"backforward",
-      @(UIWebViewNavigationTypeReload): @"reload",
-      @(UIWebViewNavigationTypeFormResubmitted): @"formresubmit",
-      @(UIWebViewNavigationTypeOther): @"other",
-    };
+                        @(UIWebViewNavigationTypeLinkClicked): @"click",
+                        @(UIWebViewNavigationTypeFormSubmitted): @"formsubmit",
+                        @(UIWebViewNavigationTypeBackForward): @"backforward",
+                        @(UIWebViewNavigationTypeReload): @"reload",
+                        @(UIWebViewNavigationTypeFormResubmitted): @"formresubmit",
+                        @(UIWebViewNavigationTypeOther): @"other",
+                        };
   });
-
+  
   // skip this for the JS Navigation handler
   if (!isJSNavigation && _onShouldStartLoadWithRequest) {
     NSMutableDictionary<NSString *, id> *event = [self baseEvent];
     [event addEntriesFromDictionary: @{
-      @"url": (request.URL).absoluteString,
-      @"navigationType": navigationTypes[@(navigationType)]
-    }];
+                                       @"url": (request.URL).absoluteString,
+                                       @"navigationType": navigationTypes[@(navigationType)]
+                                       }];
     if (![self.delegate webView:self
       shouldStartLoadForRequest:event
                    withCallback:_onShouldStartLoadWithRequest]) {
       return NO;
     }
   }
-
+  
   if (_onLoadingStart) {
     // We have this check to filter out iframe requests and whatnot
     BOOL isTopFrame = [request.URL isEqual:request.mainDocumentURL];
     if (isTopFrame) {
       NSMutableDictionary<NSString *, id> *event = [self baseEvent];
       [event addEntriesFromDictionary: @{
-        @"url": (request.URL).absoluteString,
-        @"navigationType": navigationTypes[@(navigationType)]
-      }];
+                                         @"url": (request.URL).absoluteString,
+                                         @"navigationType": navigationTypes[@(navigationType)]
+                                         }];
       _onLoadingStart(event);
     }
   }
-
+  
   if (isJSNavigation && [request.URL.host isEqualToString:RCTJSPostMessageHost]) {
     NSString *data = request.URL.query;
     data = [data stringByReplacingOccurrencesOfString:@"+" withString:@" "];
     data = [data stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-
+    
     NSMutableDictionary<NSString *, id> *event = [self baseEvent];
     [event addEntriesFromDictionary: @{
-      @"data": data,
-    }];
+                                       @"data": data,
+                                       }];
     _onMessage(event);
   }
-
+  
   // JS Navigation handler
   return !isJSNavigation;
 }
@@ -266,13 +266,13 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
       // http://stackoverflow.com/questions/1024748/how-do-i-fix-nsurlerrordomain-error-999-in-iphone-3-0-os
       return;
     }
-
+    
     NSMutableDictionary<NSString *, id> *event = [self baseEvent];
     [event addEntriesFromDictionary:@{
-      @"domain": error.domain,
-      @"code": @(error.code),
-      @"description": error.localizedDescription,
-    }];
+                                      @"domain": error.domain,
+                                      @"code": @(error.code),
+                                      @"description": error.localizedDescription,
+                                      }];
     _onLoadingError(event);
   }
 }
@@ -280,31 +280,41 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
   if (_messagingEnabled) {
-    #if RCT_DEV
+#if RCT_DEV
     // See isNative in lodash
-    NSString *testPostMessageNative = @"String(window.postMessage) === String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage')";
+    NSString *testPostMessageNative = @"String(window.postMessage) === String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage') || "
+    "String(window.originalPostMessage) === String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage')"
+    ;
     BOOL postMessageIsNative = [
-      [webView stringByEvaluatingJavaScriptFromString:testPostMessageNative]
-      isEqualToString:@"true"
-    ];
+                                [webView stringByEvaluatingJavaScriptFromString:testPostMessageNative]
+                                isEqualToString:@"true"
+                                ];
     if (!postMessageIsNative) {
       RCTLogError(@"Setting onMessage on a WebView overrides existing values of window.postMessage, but a previous value was defined");
     }
-    #endif
-    NSString *source = [NSString stringWithFormat:
-      @"window.originalPostMessage = window.postMessage;"
-      "window.postMessage = function(data) {"
-        "window.location = '%@://%@?' + encodeURIComponent(String(data));"
-      "};", RCTJSNavigationScheme, RCTJSPostMessageHost
-    ];
-    [webView stringByEvaluatingJavaScriptFromString:source];
+#endif
+    
+    NSString* didSetPostMessage = @"window.originalPostMessage != undefined";
+    BOOL postMessageIsSet = [
+                             [webView stringByEvaluatingJavaScriptFromString:didSetPostMessage]
+                             isEqualToString:@"true"
+                             ];
+    if (!postMessageIsSet) {
+      NSString *source = [NSString stringWithFormat:
+                          @"window.originalPostMessage = window.postMessage;"
+                          "window.postMessage = function(data) {"
+                          "window.location = '%@://%@?' + encodeURIComponent(String(data));"
+                          "};", RCTJSNavigationScheme, RCTJSPostMessageHost
+                          ];
+      [webView stringByEvaluatingJavaScriptFromString:source];
+    }
   }
   if (_injectedJavaScript != nil) {
     NSString *jsEvaluationValue = [webView stringByEvaluatingJavaScriptFromString:_injectedJavaScript];
-
+    
     NSMutableDictionary<NSString *, id> *event = [self baseEvent];
     event[@"jsEvaluationValue"] = jsEvaluationValue;
-
+    
     _onLoadingFinish(event);
   }
   // we only need the final 'finishLoad' call so only fire the event when we're actually done loading.
@@ -314,3 +324,4 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 }
 
 @end
+
