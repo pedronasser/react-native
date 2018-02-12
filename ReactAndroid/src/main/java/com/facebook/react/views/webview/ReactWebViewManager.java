@@ -539,6 +539,16 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
       client.setUrlPrefixesForDefaultIntent(urlPrefixesForDefaultIntent);
     }
   }
+  
+  @ReactProp(name = "supportMultipleWindows")
+  public void setSupportMultipleWindows(WebView view, boolean supports) {
+    view.getSettings().setSupportMultipleWindows(supports);
+  }
+  
+  @ReactProp(name = "supportZoom")
+  public void setSupportZoom(WebView view, boolean supports) {
+    view.getSettings().setSupportZoom(supports);
+  }
 
   @Override
   protected void addEventEmitters(ThemedReactContext reactContext, WebView view) {
