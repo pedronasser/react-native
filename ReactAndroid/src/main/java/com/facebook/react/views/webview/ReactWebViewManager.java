@@ -497,7 +497,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
   
   @ReactProp(name = "javaScriptCanOpenWindowsAutomatically")
   public void setJavaScriptCanOpenWindowsAutomatically(WebView view, boolean isCan) {
-    view.getSettings().setJavaScriptCanOpenWindowsAutomatically(isCan)
+    view.getSettings().setJavaScriptCanOpenWindowsAutomatically(isCan);
   }
 
   @ReactProp(name = "supportZoom")
