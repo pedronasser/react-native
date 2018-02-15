@@ -123,6 +123,18 @@ class WebView extends React.Component {
     ]),
 
     /**
+     * decides if webview can be pitched for zoom or not
+     * */
+    supportZoom: PropTypes.bool,
+    /**
+     * will allow webview to open new windows
+     * */
+    javaScriptCanOpenWindowsAutomatically: PropTypes.bool,
+    /**
+     * allows tabs in webview
+     * */
+    supportMultipleWindows:PropTypes.func,
+    /**
      * Used on Android only, JS is enabled by default for WebView on iOS
      * @platform android
      */
